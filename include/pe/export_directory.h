@@ -1,5 +1,6 @@
 #pragma once
-#include <ntdll.h>
+#include <phnt_windows.h>
+#include <phnt.h>
 
 namespace pe
 {

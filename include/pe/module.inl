@@ -1,7 +1,8 @@
 #pragma once
+#include <phnt_windows.h>
+#include <phnt.h>
 #include <ntapi\string.h>
 #include <ntapi\critsec.h>
-#include <ntdll.h>
 #include <string>
 #include <mutex>
 #include "module.h"
