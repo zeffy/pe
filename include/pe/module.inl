@@ -1,12 +1,16 @@
 #pragma once
 #include <phnt_windows.h>
 #include <phnt.h>
-#include <ntapi\string.h>
-#include <ntapi\critsec.h>
-#include <string>
+
+#include <array>
+#include <cstdint>
 #include <mutex>
+#include <string>
+
 #include "module.h"
 #include "segment.h"
+#include <ntapi\critsec.h>
+#include <ntapi\string.h>
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
@@ -160,6 +164,27 @@ namespace pe
     }
     return nullptr;
   };
+
+  inline void module::hide_from_module_lists () const
+  {
+    ntapi::critsec *loaderLock = static_cast<ntapi::critsec *>(NtCurrentPeb()->LoaderLock);
+    std::lock_guard<ntapi::critsec> guard(*loaderLock);
+    PPEB_LDR_DATA loaderData = NtCurrentPeb()->Ldr;
+
+    for ( const auto ModuleList : std::array { 
+      &loaderData->InLoadOrderModuleList,
+      &loaderData->InMemoryOrderModuleList,
+      &loaderData->InInitializationOrderModuleList } ) {
+
+      for ( auto Entry = ModuleList->Flink; Entry != ModuleList; Entry = Entry->Flink ) {
+        auto Module = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
+        if ( Module->DllBase == this ) {
+          RemoveEntryList(Entry);
+          break;
+        }
+      }
+    }
+  }
 
   inline module *get_module(wchar_t const *name)
   {
