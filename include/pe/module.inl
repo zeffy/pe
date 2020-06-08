@@ -31,7 +31,7 @@ namespace pe
       auto Module = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
 
       if ( Module->DllBase == this )
-          return std::wstring(Module->BaseDllName.Buffer, Module->BaseDllName.Length / sizeof(wchar_t));
+        return std::wstring(Module->BaseDllName.Buffer, Module->BaseDllName.Length / sizeof(wchar_t));
     }
     return {};
   }
@@ -119,7 +119,7 @@ namespace pe
     return it != segments.end() ? &*it : nullptr;
   }
 
-  inline const class segment *module::segment(const char* name) const
+  inline const class segment *module::segment(const char *name) const
   {
     return const_cast<module *>(this)->segment(name);
   }
@@ -165,23 +165,31 @@ namespace pe
     return nullptr;
   };
 
-  inline void module::hide_from_module_lists () const
+  inline void module::hide_from_module_lists() const
   {
     ntapi::critsec *loaderLock = static_cast<ntapi::critsec *>(NtCurrentPeb()->LoaderLock);
     std::lock_guard<ntapi::critsec> guard(*loaderLock);
     PPEB_LDR_DATA loaderData = NtCurrentPeb()->Ldr;
 
-    for ( const auto ModuleList : std::array { 
-      &loaderData->InLoadOrderModuleList,
-      &loaderData->InMemoryOrderModuleList,
-      &loaderData->InInitializationOrderModuleList } ) {
-
-      for ( auto Entry = ModuleList->Flink; Entry != ModuleList; Entry = Entry->Flink ) {
-        auto Module = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
-        if ( Module->DllBase == this ) {
-          RemoveEntryList(Entry);
-          break;
-        }
+    for ( auto Entry = loaderData->InLoadOrderModuleList.Flink; Entry != &loaderData->InLoadOrderModuleList; Entry = Entry->Flink ) {
+      auto Module = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
+      if ( Module->DllBase == this ) {
+        RemoveEntryList(Entry);
+        break;
+      }
+    }
+    for ( auto Entry = loaderData->InMemoryOrderModuleList.Flink; Entry != &loaderData->InMemoryOrderModuleList; Entry = Entry->Flink ) {
+      auto Module = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY, InMemoryOrderLinks);
+      if ( Module->DllBase == this ) {
+        RemoveEntryList(Entry);
+        break;
+      }
+    }
+    for ( auto Entry = loaderData->InInitializationOrderModuleList.Flink; Entry != &loaderData->InInitializationOrderModuleList; Entry = Entry->Flink ) {
+      auto Module = CONTAINING_RECORD(Entry, LDR_DATA_TABLE_ENTRY, InInitializationOrderLinks);
+      if ( Module->DllBase == this ) {
+        RemoveEntryList(Entry);
+        break;
       }
     }
   }
