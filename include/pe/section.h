@@ -1,31 +1,28 @@
 #pragma once
 #include <phnt_windows.h>
 #include <phnt.h>
-#include <gsl/span>
-#include <gsl/span_ext>
+#include <cstdint>
+#include <span>
 #include "module.h"
 
 namespace pe
 {
-  class module;
-
-  class segment : public IMAGE_SECTION_HEADER
+  class section : public _IMAGE_SECTION_HEADER
   {
   public:
-    segment() = delete;
+    section() = delete;
 
-    const class module *module() const;
-    class module *module();
     std::string_view name() const;
-    gsl::span<uint8_t> as_bytes();
-    gsl::span<const uint8_t> as_bytes() const;
+    std::uint8_t *data();
+    const std::uint8_t *data() const;
+    std::uint32_t size() const;
     bool contains_code() const;
     bool contains_initialized_data() const;
     bool contains_uninitialized_data() const;
-    uint32_t relocation_count() const;
+    std::uint32_t relocation_count() const;
     bool discardable() const;
-    bool not_cached() const;
-    bool not_paged() const;
+    bool cached() const;
+    bool paged() const;
     bool shared() const;
     bool executable() const;
     bool readable() const;
@@ -33,4 +30,4 @@ namespace pe
   };
 }
 
-#include "segment.inl"
+#include "section.inl"
