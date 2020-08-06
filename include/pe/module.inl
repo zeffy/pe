@@ -1,4 +1,3 @@
-#pragma once
 #include <phnt_windows.h>
 #include <phnt.h>
 
@@ -6,10 +5,11 @@
 #include <wil/resource.h>
 #include <wil/win32_helpers.h>
 
-#include <array>
 #include <cstdint>
+#include <string_view>
+#include <optional>
+#include <span>
 #include <mutex>
-#include <string>
 
 #include "module.h"
 #include "segment.h"
@@ -159,10 +159,10 @@ namespace pe
     }
   }
 
-  inline module *get_module(wchar_t const *name)
+  inline pe::module *get_module(wchar_t const *name)
   {
     if ( !name ) {
-      return static_cast<module *>(NtCurrentPeb()->ImageBaseAddress);
+      return static_cast<pe::module *>(NtCurrentPeb()->ImageBaseAddress);
     } else {
       auto crit = static_cast<nt::rtl::critical_section *>(NtCurrentPeb()->LoaderLock);
       std::lock_guard<nt::rtl::critical_section> guard(*crit);
@@ -174,25 +174,25 @@ namespace pe
           continue;
 
         if ( static_cast<nt::rtl::unicode_string_view *>(&Module->BaseDllName)->iequals(name) )
-          return static_cast<module *>(Module->DllBase);
+          return static_cast<pe::module *>(Module->DllBase);
       }
     }
     return nullptr;
   }
 
-  inline module *get_module_from_address(void *pc)
+  inline pe::module *get_module_from_address(void *pc)
   {
     void *Unused;
-    return static_cast<module *>(RtlPcToFileHeader(pc, &Unused));
+    return static_cast<pe::module *>(RtlPcToFileHeader(pc, &Unused));
   }
 
-  inline const module *get_module_from_address(const void *pc)
+  inline const pe::module *get_module_from_address(const void *pc)
   {
-    return get_module_from_address(const_cast<void *>(pc));
+    return pe::get_module_from_address(const_cast<void *>(pc));
   }
 
-  inline module *instance_module()
+  inline pe::module *instance_module()
   {
-    return reinterpret_cast<module *>(&__ImageBase);
+    return reinterpret_cast<pe::module *>(&__ImageBase);
   }
 }

@@ -1,28 +1,17 @@
-#pragma once
 #include <phnt_windows.h>
 #include <phnt.h>
-#include "export_directory.h"
+#include "exports.h"
 #include "module.h"
 
 namespace pe
 {
-  inline const module *export_directory::module() const
-  {
-    return get_module_from_address(this);
-  }
-
-  inline module *export_directory::module()
-  {
-    return get_module_from_address(this);
-  }
-
-  inline __time32_t export_directory::timestamp() const
+  inline __time32_t exports::timestamp() const
   {
     return this->TimeDateStamp;
   }
 
-  inline const char *export_directory::name() const
+  inline const char *exports::name() const
   {
-    return this->module()->rva_to<const char>(this->Name);
+    return pe::get_module_from_address(this)->rva_to<const char>(this->Name);
   }
 }

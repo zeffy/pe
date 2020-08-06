@@ -1,15 +1,17 @@
-#pragma once
 #include <phnt_windows.h>
 #include <phnt.h>
+
 #include <cstdint>
+#include <string_view>
 #include <optional>
 #include <span>
+
 #include "module.h"
 #include "section.h"
 
 namespace pe
 {
-  inline std::string_view pe::section::name() const
+  inline std::string_view section::name() const
   {
     std::size_t count;
     for ( count = 0; count < IMAGE_SIZEOF_SHORT_NAME; ++count ) {

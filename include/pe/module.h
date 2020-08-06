@@ -1,12 +1,13 @@
 #pragma once
 #include <phnt_windows.h>
 #include <phnt.h>
+
 #include <cstdint>
-#include <string>
+#include <string_view>
+#include <optional>
 #include <span>
 
 #include "section.h"
-#include "exports.h"
 
 namespace pe
 {
