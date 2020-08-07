@@ -3,11 +3,12 @@
 #include <phnt.h>
 
 #include <cstdint>
-#include <string_view>
 #include <optional>
 #include <span>
+#include <string_view>
 
-#include "section.h"
+//#include "section.h"
+//#include "exports.h"
 
 namespace pe
 {
@@ -33,16 +34,16 @@ namespace pe
     struct _IMAGE_NT_HEADERS *nt_header();
     const struct _IMAGE_NT_HEADERS *nt_header() const;
     std::size_t size() const;
-    std::optional<std::span<pe::section>> sections();
-    std::optional<std::span<const pe::section>> sections() const;
-    class pe::exports *exports();
-    const class pe::exports *exports() const;
+    std::optional<std::span<class section>> sections();
+    std::optional<std::span<const class section>> sections() const;
+    //pe::exports *exports();
+    //const  pe::exports *exports() const;
     void hide_from_module_lists() const;
   };
-  class pe::module *get_module(const wchar_t *name = nullptr);
-  class pe::module *get_module_from_address(void *pc);
-  const class pe::module *get_module_from_address(const void *pc);
-  class pe::module *instance_module();
+  pe::module *get_module(const wchar_t *name = nullptr);
+  pe::module *get_module_from_address(void *pc);
+  const pe::module *get_module_from_address(const void *pc);
+  extern pe::module *instance_module;
 }
 
 #include "module.inl"

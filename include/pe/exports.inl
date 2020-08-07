@@ -1,5 +1,7 @@
+#pragma once
 #include <phnt_windows.h>
 #include <phnt.h>
+
 #include "exports.h"
 #include "module.h"
 
