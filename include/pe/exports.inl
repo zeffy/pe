@@ -2,12 +2,14 @@
 #include <phnt_windows.h>
 #include <phnt.h>
 
+#include <ctime>
+
 #include "exports.h"
 #include "module.h"
 
 namespace pe
 {
-  inline __time32_t exports::timestamp() const
+  inline std::time_t exports::timestamp() const
   {
     return this->TimeDateStamp;
   }

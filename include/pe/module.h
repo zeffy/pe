@@ -7,9 +7,6 @@
 #include <span>
 #include <string_view>
 
-//#include "section.h"
-//#include "exports.h"
-
 namespace pe
 {
   class module : public HINSTANCE__
@@ -31,13 +28,15 @@ namespace pe
     std::wstring_view full_name() const;
     struct _IMAGE_DOS_HEADER *dos_header();
     const struct _IMAGE_DOS_HEADER *dos_header() const;
-    struct _IMAGE_NT_HEADERS *nt_header();
-    const struct _IMAGE_NT_HEADERS *nt_header() const;
+    IMAGE_NT_HEADERS *nt_header();
+    const IMAGE_NT_HEADERS *nt_header() const;
     std::size_t size() const;
     std::optional<std::span<class section>> sections();
     std::optional<std::span<const class section>> sections() const;
-    //pe::exports *exports();
-    //const  pe::exports *exports() const;
+    class exports *exports();
+    const class exports *exports() const;
+    class debug *debug();
+    const class debug *debug() const;
     void hide_from_module_lists() const;
   };
   pe::module *get_module(const wchar_t *name = nullptr);

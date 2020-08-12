@@ -3,16 +3,17 @@
 #include <phnt.h>
 
 #include <ctime>
+#include <cstdint>
 
 namespace pe
 {
-  class exports : public _IMAGE_EXPORT_DIRECTORY
+  class debug : public _IMAGE_DEBUG_DIRECTORY
   {
   public:
-    exports() = delete;
+    debug() = delete;
     std::time_t timestamp() const;
-    const char *name() const;
+    std::uint32_t type() const;
   };
 }
 
-#include "exports.inl"
+#include "debug.inl"
