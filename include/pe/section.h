@@ -19,6 +19,7 @@ namespace pe
     bool contains_code() const;
     bool contains_initialized_data() const;
     bool contains_uninitialized_data() const;
+    bool contains_data() const;
     std::uint32_t relocation_count() const;
     bool discardable() const;
     bool cached() const;

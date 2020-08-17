@@ -58,6 +58,11 @@ inline bool pe::section::contains_uninitialized_data() const
   return this->Characteristics & IMAGE_SCN_CNT_UNINITIALIZED_DATA;
 }
 
+inline bool pe::section::contains_data() const
+{
+  return this->Characteristics & (IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_CNT_UNINITIALIZED_DATA);
+}
+
 inline std::uint32_t pe::section::relocation_count() const
 {
   if ( (this->Characteristics & IMAGE_SCN_LNK_NRELOC_OVFL)
