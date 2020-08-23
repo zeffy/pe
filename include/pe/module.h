@@ -40,6 +40,7 @@ namespace pe
     void hide_from_module_lists() const;
   };
   pe::module *get_module(const wchar_t *name = nullptr);
+  pe::module *get_module_by_prefix(const wchar_t *prefix);
   pe::module *get_module_from_address(void *pc);
   const pe::module *get_module_from_address(const void *pc);
   extern pe::module *instance_module;

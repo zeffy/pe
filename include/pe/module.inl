@@ -85,8 +85,8 @@ inline size_t pe::module::size() const
 
   const auto ntheader = this->nt_header();
   if ( !ntheader
-    || !ntheader->FileHeader.SizeOfOptionalHeader
-    || ntheader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR_MAGIC )
+      || !ntheader->FileHeader.SizeOfOptionalHeader
+      || ntheader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR_MAGIC )
     return 0;
 
   return ntheader->OptionalHeader.SizeOfImage;
@@ -98,7 +98,7 @@ inline std::optional<std::span<pe::section>> pe::module::sections()
   if ( !ntheader )
     return std::nullopt;
 
-  return std::span{ static_cast<section *>(IMAGE_FIRST_SECTION(ntheader)), ntheader->FileHeader.NumberOfSections };
+  return std::span{static_cast<section *>(IMAGE_FIRST_SECTION(ntheader)), ntheader->FileHeader.NumberOfSections};
 }
 
 inline std::optional<std::span<const pe::section>> pe::module::sections() const
@@ -107,17 +107,17 @@ inline std::optional<std::span<const pe::section>> pe::module::sections() const
   if ( !ntheader )
     return std::nullopt;
 
-  return std::span{ static_cast<const pe::section *>(IMAGE_FIRST_SECTION(ntheader)), ntheader->FileHeader.NumberOfSections };
+  return std::span{static_cast<const pe::section *>(IMAGE_FIRST_SECTION(ntheader)), ntheader->FileHeader.NumberOfSections};
 }
 
 inline pe::exports *pe::module::exports()
 {
   const auto ntheader = this->nt_header();
   if ( !ntheader
-    || !ntheader->FileHeader.SizeOfOptionalHeader
-    || ntheader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR_MAGIC
-    || !ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress
-    || !ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size )
+      || !ntheader->FileHeader.SizeOfOptionalHeader
+      || ntheader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR_MAGIC
+      || !ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress
+      || !ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].Size )
     return nullptr;
   return this->rva_to<pe::exports>(
     ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_EXPORT].VirtualAddress);
@@ -132,10 +132,10 @@ inline pe::debug *pe::module::debug()
 {
   const auto ntheader = this->nt_header();
   if ( !ntheader
-    || !ntheader->FileHeader.SizeOfOptionalHeader
-    || ntheader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR_MAGIC
-    || !ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress
-    || !ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size )
+      || !ntheader->FileHeader.SizeOfOptionalHeader
+      || ntheader->OptionalHeader.Magic != IMAGE_NT_OPTIONAL_HDR_MAGIC
+      || !ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress
+      || !ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].Size )
     return nullptr;
   return this->rva_to<pe::debug>(
     ntheader->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_DEBUG].VirtualAddress);
@@ -193,6 +193,23 @@ inline pe::module *pe::get_module(const wchar_t *name)
       if ( static_cast<nt::rtl::unicode_string_view *>(&Entry->BaseDllName)->iequals(name) )
         return static_cast<pe::module *>(Entry->DllBase);
     }
+  }
+  return nullptr;
+}
+
+inline pe::module *pe::get_module_by_prefix(const wchar_t *prefix)
+{
+  auto cs = static_cast<nt::rtl::critical_section *>(NtCurrentPeb()->LoaderLock);
+  std::lock_guard<nt::rtl::critical_section> guard(*cs);
+
+  const auto ModuleListHead = &NtCurrentPeb()->Ldr->InLoadOrderModuleList;
+  for ( auto Next = ModuleListHead->Flink; Next != ModuleListHead; Next = Next->Flink ) {
+    auto Entry = CONTAINING_RECORD(Next, LDR_DATA_TABLE_ENTRY, InLoadOrderLinks);
+    if ( !Entry->InMemoryOrderLinks.Flink )
+      continue;
+
+    if ( static_cast<nt::rtl::unicode_string_view *>(&Entry->BaseDllName)->istarts_with(prefix) )
+      return static_cast<pe::module *>(Entry->DllBase);
   }
   return nullptr;
 }
