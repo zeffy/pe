@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <string_view>
 #include <optional>
-#include <span>
 
 #include "module.h"
 #include "section.h"

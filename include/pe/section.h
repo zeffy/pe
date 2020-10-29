@@ -3,7 +3,7 @@
 #include <phnt.h>
 
 #include <cstdint>
-#include <span>
+#include <string_view>
 
 namespace pe
 {
